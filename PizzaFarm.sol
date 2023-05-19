@@ -63,9 +63,9 @@ address public owner;
     if (block.number > farm.lastRewardBlock && farm.StakedTokens != 0) {
       uint256 multiplier = getMultiplier(farm.lastRewardBlock, block.number);
       uint256 tokenReward = multiplier*farm.blockReward;
-      accReward = accReward+tokenReward*1e9/farm.StakedTokens;
+      accReward = accReward+tokenReward*1e18/farm.StakedTokens;
     }
-    return user.amount*accReward/1e9-user.reward;
+    return user.amount*accReward/1e18-user.reward;
   }
 
  
@@ -81,7 +81,7 @@ address public owner;
     }
     uint256 multiplier = getMultiplier(farm.lastRewardBlock, block.number);
     uint256 tokenReward = multiplier*farm.blockReward;
-    farm.accReward = farm.accReward+tokenReward*1e9/farm.StakedTokens;
+    farm.accReward = farm.accReward+tokenReward*1e18/farm.StakedTokens;
     farm.lastRewardBlock = block.number < farm.endBlock ? block.number : farm.endBlock;
   }
 
@@ -94,7 +94,7 @@ address public owner;
     UserStakes storage user = userStakes[msg.sender];
     updatePool();
     if (user.amount > 0) {
-      uint256 pending = user.amount*farm.accReward/1e9-user.reward;
+      uint256 pending = user.amount*farm.accReward/1e18-user.reward;
       safeTransfer(msg.sender, pending);
     }
     if (user.amount == 0 && _amount > 0) {
@@ -103,7 +103,7 @@ address public owner;
     require(farm.token.transferFrom(address(msg.sender), address(this), _amount), "Transfer failed");
     farm.StakedTokens = farm.StakedTokens+_amount;
     user.amount = user.amount+_amount;
-    user.reward = user.amount*farm.accReward/1e9;
+    user.reward = user.amount*farm.accReward/1e18;
     emit Deposit(msg.sender, _amount);
   }
   
@@ -118,11 +118,11 @@ address public owner;
     if (user.amount == _amount && _amount > 0) {
       farm.nmFarmers--;
     }
-    uint256 pending = _amount+user.amount*farm.accReward/1e9-user.reward;
+    uint256 pending = _amount+user.amount*farm.accReward/1e18-user.reward;
     safeTransfer(msg.sender, pending);
     farm.StakedTokens = farm.StakedTokens-_amount;
     user.amount = user.amount-_amount;
-    user.reward = user.amount*farm.accReward/1e9;
+    user.reward = user.amount*farm.accReward/1e18;
     emit Withdraw(msg.sender, _amount);
   }
 
